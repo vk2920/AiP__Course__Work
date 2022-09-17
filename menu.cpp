@@ -79,48 +79,84 @@ int select_from_menu(const char** _menu, const int _mic, int _exit_code) {
     old_size[0] = size[0];
     old_size[1] = size[1];
     int htab, vtab;
+    bool sized = false;
     const char _sep1[] = "\xC9\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xD1\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xBB\n";
     const char _sep2[] = "\xC7\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC5\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xB6\n";
-    const char _sep3[] = "\xC9\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xD1\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xBB\n";
+    const char _sep3[] = "\xC8\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCF\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xBC\n";
     COORD position = { 0, 0 };
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    char* ttab = NULL, * ltab = NULL;
+
+    size = get_size();
+    if (size && !size[0]) htab = (get_size()[1] - 80) / 2;
+    else htab = 0;
+    if (size && !size[0]) vtab = (get_size()[2] - _mic - 1) / 2;
+    else vtab = 0;
+
+    ltab = (char*)malloc(htab);
+    //#pragma clang loop unroll_count(4)
+    for (int _i = 0; _i < htab; _i++) ltab[_i] = ' ', ltab[_i + 1] = '\0';
+
+    ttab = (char*)malloc(vtab);
+    //#pragma clang loop unroll_count(4)
+    for (int _i = 0; _i < vtab; _i++) ttab[_i] = '\n', ttab[_i + 1] = '\0';
+
     while (1) {
         size = get_size();
-        if (size && old_size && size[0] != old_size[0] || size[1] != old_size[1]) {
+        if ((size && old_size && (size[0] != old_size[0] || size[1] != old_size[1])) || !size || !old_size || !sized) {
+            sized = true;
             free(old_size);
             old_size = size;
             system("cls");
+            if (size && !size[0]) htab = (get_size()[1] - 80) / 2;
+            else htab = 0;
+            if (size && !size[0]) vtab = (get_size()[2] - _mic - 1) / 2;
+            else vtab = 0;
+
+            ltab = (char*)malloc(htab);
+            //#pragma clang loop unroll_count(4)
+            for (int _i = 0; _i < htab; _i++) ltab[_i] = ' ', ltab[_i + 1] = '\0';
+
+            ttab = (char*)malloc(vtab);
+            //#pragma clang loop unroll_count(4)
+            for (int _i = 0; _i < vtab; _i++) ttab[_i] = '\n', ttab[_i + 1] = '\0';
         }
-        if (size && !size[0]) htab = (get_size()[1] - 80) / 2;
-        else htab = 0;
-        if (size && !size[0]) vtab = (get_size()[2] - _mic - 1) / 2;
-        else vtab = 0;
-
-        char* ltab = (char*)malloc(htab);
-        for (int _i = 0; _i < htab; _i++) ltab[_i] = ' ', ltab[_i + 1] = '\0';
-
-        char* ttab = (char*)malloc(vtab);
-        for (int _i = 0; _i < vtab; _i++) ttab[_i] = '\n', ttab[_i + 1] = '\0';
 
         // Вывод менюшки
         SetConsoleCursorPosition(hConsole, position);
+        SetConsoleOutputCP(866);
         printf("%s%s%s", ttab, ltab, _sep1);
+        SetConsoleOutputCP(old_cp);
         for (int _i = 0; _i < (_mic + 1) / 2; _i++) {
             for (int _j = 0; _j < htab; _j++) printf(" ");
-            printf((2 * _i == s) ? "|\x1b[47;30m" : "|");
-            printf("%38.38s \x1b[0m|", _menu[2 * _i]);
+            SetConsoleOutputCP(866);
+            printf((2 * _i == s) ? "\xBA\x1b[47;30m" : "\xBA");
+            SetConsoleOutputCP(old_cp);
+            printf("%38.38s \x1b[0m", _menu[2 * _i]);
+            SetConsoleOutputCP(866);
+            printf("\xB3");
+            SetConsoleOutputCP(old_cp);
             if (2 * _i + 1 < _mic) {
                 printf((2 * _i + 1 == s) ? "\x1b[47;30m" : "");
-                printf(" %-38.38s\x1b[0m|\n", _menu[2 * _i + 1]);
+                printf(" %-38.38s", _menu[2 * _i + 1]);
+                SetConsoleOutputCP(866);
+                printf("\x1b[0m\xBA\n");
+                SetConsoleOutputCP(old_cp);
             }
-            else printf("                                       |\n");
+            else {
+                SetConsoleOutputCP(866);
+                printf("                                       \xBA\n");
+                SetConsoleOutputCP(old_cp);
+            }
             if (2 * _i + 2 < _mic) {
                 SetConsoleOutputCP(866);
                 printf("%s%s", ltab, _sep2);
                 SetConsoleOutputCP(old_cp);
             }
         }
-        printf("%s%s", ltab, _sep1);
+        SetConsoleOutputCP(866);
+        printf("%s%s", ltab, _sep3);
+        SetConsoleOutputCP(old_cp);
 
         // Исключим ложные срабатывания
         int a = _getch();
