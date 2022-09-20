@@ -128,7 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AiP_Course_Work.cpp" />
-    <ClCompile Include="menu.cpp" />
+    <ClCompile Include="menu.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="menu.h" />

@@ -18,7 +18,7 @@
     <ClCompile Include="AiP_Course_Work.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="menu.cpp">
+    <ClCompile Include="menu.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
