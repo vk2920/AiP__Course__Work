@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AiP_Course_Work.cpp">
+    <ClCompile Include="AiP_Course_Work.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="menu.c">

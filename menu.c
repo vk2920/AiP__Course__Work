@@ -83,7 +83,7 @@ int select_from_menu(const char** _menu, const int _mic, int _exit_code) {
     old_size[0] = size[0];
     old_size[1] = size[1];
     int htab, vtab;
-    bool sized = false;
+    int sized = 0;
     const char _sep1[] = "\xC9\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xD1\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xBB\n";
     const char _sep2[] = "\xC7\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC5\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xC4\xB6\n";
     const char _sep3[] = "\xC8\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCF\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xBC\n";
@@ -108,7 +108,7 @@ int select_from_menu(const char** _menu, const int _mic, int _exit_code) {
     while (1) {
         size = get_size();
         if ((size && old_size && (size[0] != old_size[0] || size[1] != old_size[1])) || !size || !old_size || !sized) {
-            sized = true;
+            sized = 1;
             free(old_size);
             old_size = size;
             system("cls");
@@ -264,11 +264,14 @@ char** enter_data(const char** _headers, const int _items_count) {
     }
     current_position.Y++;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
+    printf("\xBA            \x1b[30;47mArrow Up\x1b[0m Move Cursor Up     \x1b[30;47mArrow Down\x1b[0m Move Cursor Down     \x1b[30;47mBackspace\x1b[0m Delete Last Character     \x1b[30;47mCtrl + Backspace\x1b[0m Delete Selected Line             \xBA");
+    current_position.Y++;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
     printf("\xC8");
     for (int _i = 0; _i < 158; _i++) printf("\xCD");
     printf("\xBC");
     current_position.X += 44;
-    current_position.Y -= _items_count * 2;
+    current_position.Y -= _items_count * 2 + 1;
     int top = current_position.Y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
     // printf("X");
@@ -295,7 +298,20 @@ char** enter_data(const char** _headers, const int _items_count) {
             for (int _i = 0; _i < 114 - len; _i++) printf("_");
             SetConsoleOutputCP(866);
         }
-        else if (a == 9) return res;
+        else if (a == 9) return res;  // Tab
+        else if (a == 127) {
+            // Ctrl + Backspace
+            free(res[selected]);
+            res[selected] = NULL;
+            SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
+            len = 0;
+            if (res[selected]) len = strlen(res[selected]);
+            SetConsoleOutputCP(main_cp);
+            if (res[selected]) printf("%s", res[selected]);
+            else printf("");
+            for (int _i = 0; _i < 114 - len; _i++) printf("_");
+            SetConsoleOutputCP(866);
+        }
         else if (a <= 126 && a >= 32) {
             if (!res[selected]) {
                 res[selected] = (char*)calloc(2, sizeof(char));
