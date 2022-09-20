@@ -14,6 +14,10 @@
 #include <conio.h>
 #endif
 
+#ifndef uint
+#define uint unsigned int
+#endif
+
 #include "menu.h"
 
 /// <summary>
@@ -198,6 +202,121 @@ int select_from_menu(const char** _menu, const int _mic, int _exit_code) {
         if (s < 0) s = 0; else if (s >= _mic) s = _mic - 1;
     }
     free(size);
+}
+
+char* delete_last_char(char* _str) {
+    if (!_str) return _str;
+    unsigned int len = strlen(_str);
+    if (len <= 1) return NULL;
+    char* res = (char*)calloc(len+1, sizeof(char));
+    if (!res) return _str;
+    for (unsigned int _i = 0; _i < len-1; _i++) res[_i] = _str[_i];
+    free(_str);
+    return res;
+}
+
+char* add_new_char(char* _str, char _c) {
+    if (!_str) return _str;
+    uint len = strlen(_str);
+    char* res = (char*)calloc(len + 2, sizeof(char));
+    if (!res) return _str;
+    for (uint _i = 0; _i < len; _i++) res[_i] = _str[_i];
+    res[len] = _c;
+    return res;
+}
+
+char** enter_data(const char** _headers, const int _items_count) {
+    if (!_headers) {
+        return NULL;
+    }
+    char** res = (char**)calloc(_items_count, sizeof(char*));
+    system("cls");
+    COORD left_top_corner = {
+        (get_size()[1] - 160) / 2,
+        (get_size()[2] - _items_count*2 - 2) / 2
+    };
+    COORD current_position = left_top_corner;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
+    int main_cp = GetConsoleOutputCP();
+    SetConsoleOutputCP(866);
+    printf("\xC9");
+    for (int _i = 1; _i < 159; _i++) printf("\xCD");
+    printf("\xBB");
+    current_position.Y++;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
+    printf("\xBA");
+    for (int _j = 0; _j < 158; _j++) printf(" ");
+    printf("\xBA");
+    for (int _i = 0; _i < _items_count; _i++) {
+        current_position.Y++;
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
+        printf("\xBA ");
+        SetConsoleOutputCP(main_cp);
+        printf("%40.40s  ", _headers[_i]);
+        for (int _j = 0; _j < 114; _j++) printf("_");
+        SetConsoleOutputCP(866);
+        printf(" \xBA");
+        current_position.Y++;
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
+        printf("\xBA");
+        for (int _j = 0; _j < 158; _j++) printf(" ");
+        printf("\xBA");
+    }
+    current_position.Y++;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
+    printf("\xC8");
+    for (int _i = 0; _i < 158; _i++) printf("\xCD");
+    printf("\xBC");
+    current_position.X += 44;
+    current_position.Y -= _items_count * 2;
+    int top = current_position.Y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
+    // printf("X");
+    int selected = 0;
+    uint len = 0;
+    while (1) {
+        // 13 - Enter
+        // 10 - Ctrl + Enter
+        int a = _getch();
+        if (a == 224) {
+            a = _getch();
+        }
+
+        if (a == 72) selected--;
+        else if (a == 80 || a == 13) selected++;
+        else if (a == 8) {
+            if (res[selected]) res[selected] = delete_last_char(res[selected]);
+            SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
+            len = 0;
+            if (res[selected]) len = strlen(res[selected]);
+            SetConsoleOutputCP(main_cp);
+            if (res[selected]) printf("%s", res[selected]);
+            else printf("");
+            for (int _i = 0; _i < 114 - len; _i++) printf("_");
+            SetConsoleOutputCP(866);
+        }
+        else if (a == 9) return res;
+        else if (a <= 126 && a >= 32) {
+            if (!res[selected]) {
+                res[selected] = (char*)calloc(2, sizeof(char));
+                if (res[selected])
+                    res[selected][0] = a;
+            }
+            else res[selected] = add_new_char(res[selected], a);
+            len = 0;
+            if (res[selected]) len = strlen(res[selected]);
+            SetConsoleOutputCP(main_cp);
+            if (res[selected]) printf("%s", res[selected]);
+            for (int _i = 0; _i < 114 - len; _i++) printf("_");
+            SetConsoleOutputCP(866);
+        }
+
+        if (selected >= _items_count) selected = _items_count - 1;
+        else if (selected < 0) selected = 0;
+        current_position.Y = top + selected * 2;
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
+    }
+    return res;
 }
 
 void create_background() {

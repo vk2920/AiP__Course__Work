@@ -4,7 +4,9 @@
 #define menu_items_count 19
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <windows.h>
+#include <conio.h>
 #include "menu.h"
 
 int main()
@@ -31,7 +33,10 @@ int main()
         "Удалить второй класс",
         "Выйти из программы"
     };
-    select_from_menu(menu, menu_items_count, menu_items_count - 1);
+    // select_from_menu(menu, menu_items_count, menu_items_count - 1);
+    // test_input();
+    _getch();
+    enter_data(menu, menu_items_count);
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
