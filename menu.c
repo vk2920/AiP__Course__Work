@@ -1,29 +1,27 @@
 ﻿#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-
 #ifndef printf
 #include <stdio.h>
 #endif
-
 #if !defined(HANDLE) || !defined(system)
 #include <windows.h>
 #endif
-
 #ifndef _getch
 #include <conio.h>
 #endif
-
 #ifndef uint
 #define uint unsigned int
+// typedef unsined int uint;
 #endif
 
 #include "menu.h"
 
-/// <summary>
-/// Функция для определения размеров окна консоли
-/// </summary>
-/// <returns></returns>
+typedef struct string {
+    uint len;
+    char* first;
+} string;
+
 int* get_size() {
     int* res = (int*)calloc(3, sizeof(int));
     if (!res) return NULL;
@@ -40,19 +38,35 @@ int* get_size() {
     return res;
 }
 
-/// <summary>
-/// Простая функция для тестирования ввода при помощи _getch()
-/// Используется для определения кодов, посылаемых клавишами клавиатуры.
-/// </summary>
-/// <returns></returns>
+void create_background() {
+    system("cls");
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    short cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    short rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+    for (short _r = 0; _r < rows; _r++)
+        for (short _c = 0; _c < cols; _c++) {
+            byte c = rand() % 2;
+            byte r = (rand() % 7);
+            switch (r)
+            {
+            case 0: printf("\x1b[31m%d", c); break;
+            case 1: printf("\x1b[32m%d", c); break;
+            case 2: printf("\x1b[33m%d", c); break;
+            case 3: printf("\x1b[34m%d", c); break;
+            case 4: printf("\x1b[35m%d", c); break;
+            case 5: printf("\x1b[36m%d", c); break;
+            case 6: printf("\x1b[37m%d", c); break;
+            }
+        }
+    printf("\x1b[0m");
+}
+
 int test_input() {
     for (int _i = 0; _i < 200; _i++) printf("%d ", _getch());
     return 0;
 }
 
-/// <summary>
-/// Какие строки документации? Это засекреченная функция
-/// </summary>
 void start_egg() {
     system("cls");
     FILE* egg = fopen("egg.txt", "rt");
@@ -67,13 +81,6 @@ void start_egg() {
     Sleep(2000);
 }
 
-/// <summary>
-/// Функция для интерактивного выбора действия
-/// </summary>
-/// <param name="_menu">Массив C-строк с названиями действий</param>
-/// <param name="_mic">Количество элементов массива</param>
-/// <param name="_exit_code">ID действия, интерпретируемого как выход</param>
-/// <returns>ID выбранного действия</returns>
 int select_from_menu(const char** _menu, const int _mic, int _exit_code) {
     int old_cp = GetConsoleOutputCP();
     SetConsoleOutputCP(1251);
@@ -225,12 +232,14 @@ char* add_new_char(char* _str, char _c) {
     return res;
 }
 
-char** enter_data(const char** _headers, const int _items_count) {
+char** enter_data(const char** _headers, const int _items_count, char** _res) {
     if (!_headers) {
         return NULL;
     }
-    char** res = (char**)calloc(_items_count, sizeof(char*));
-    system("cls");
+    char** res = NULL;
+    if (_res) res = _res;
+    else res = (char**)calloc(_items_count, sizeof(char*));
+    create_background();
     COORD left_top_corner = {
         (get_size()[1] - 160) / 2,
         (get_size()[2] - _items_count*2 - 2) / 2
@@ -333,18 +342,6 @@ char** enter_data(const char** _headers, const int _items_count) {
         SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
     }
     return res;
-}
-
-void create_background() {
-    system("cls");
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-    int cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-    int rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-    for (int _r = 0; _r < 2; _r++)
-        for (int _c = 0; _c < cols; _c++)
-            // printf("%d", rand() % 2);
-            printf(" ");
 }
 
 int menu_new(const char** _menu_item_list, const int _menu_items_count, const int _exit_answer) {

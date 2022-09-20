@@ -25,11 +25,13 @@ int select_from_menu(const char** _menu, const int _mic, int _exit_code);
 /// <summary>
 /// Функция для ввода данных, реализуется с использованием WinAPI.
 /// Создаёт большое окно в консоли для ввода строковых параметров.
+/// Некорректное использование параметров может привести к попытке чтения из невыделенной области памяти
 /// </summary>
 /// <param name="_headers">Наименования требуемых данных</param>
 /// <param name="_items_count">Количество строк, соответствующее числу наименований выше</param>
+/// <param name="_res">Значения параматров. Используйте NULL для первичного ввода данных</param>
 /// <returns>Указатель на указатели типа char**, в областях хранятся полученные от пользователя строки</returns>
-char** enter_data(const char** _headers, const int _items_count);
+char** enter_data(const char** _headers, const int _items_count, char** _res);
 
 /// <summary>
 /// В разработке.
