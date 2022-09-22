@@ -14,6 +14,10 @@
 #define uint unsigned int
 // typedef unsined int uint;
 #endif
+#ifndef uchar
+#define uchar unsigned char
+// typedef unsined int uint;
+#endif
 
 #include "menu.h"
 
@@ -47,6 +51,7 @@ void create_background() {
     for (short _r = 0; _r < rows; _r++)
         for (short _c = 0; _c < cols; _c++) {
             byte c = rand() % 2;
+            // printf("%d", c);
             byte r = (rand() % 7);
             switch (r)
             {
@@ -222,7 +227,7 @@ char* delete_last_char(char* _str) {
     return res;
 }
 
-char* add_new_char(char* _str, char _c) {
+char* add_new_char(char* _str, uchar _c) {
     if (!_str) return _str;
     uint len = strlen(_str);
     char* res = (char*)calloc(len + 2, sizeof(char));
@@ -247,6 +252,7 @@ char** enter_data(const char** _headers, const int _items_count, char** _res) {
     COORD current_position = left_top_corner;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
     int main_cp = GetConsoleOutputCP();
+    SetConsoleCP(main_cp);
     SetConsoleOutputCP(866);
     printf("\xC9");
     for (int _i = 1; _i < 159; _i++) printf("\xCD");
@@ -289,13 +295,13 @@ char** enter_data(const char** _headers, const int _items_count, char** _res) {
     while (1) {
         // 13 - Enter
         // 10 - Ctrl + Enter
-        int a = _getch();
+        int a = _getch(), _a = 0;
         if (a == 224) {
-            a = _getch();
+            _a = _getch();
         }
 
-        if (a == 72) selected--;
-        else if (a == 80 || a == 13) selected++;
+        if (a == 224 && _a == 72) selected--;
+        else if ((a == 224 && _a == 80) || a == 13) selected++;
         else if (a == 8) {
             if (res[selected]) res[selected] = delete_last_char(res[selected]);
             SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), current_position);
@@ -307,7 +313,7 @@ char** enter_data(const char** _headers, const int _items_count, char** _res) {
             for (int _i = 0; _i < 114 - len; _i++) printf("_");
             SetConsoleOutputCP(866);
         }
-        else if (a == 9) return res;  // Tab
+        else if (a == 9 || a == 8) return res;  // Tab
         else if (a == 127) {
             // Ctrl + Backspace
             free(res[selected]);
@@ -321,7 +327,7 @@ char** enter_data(const char** _headers, const int _items_count, char** _res) {
             for (int _i = 0; _i < 114 - len; _i++) printf("_");
             SetConsoleOutputCP(866);
         }
-        else if (a <= 126 && a >= 32) {
+        else if (a <= 126 && a >= 32 || a >= 128 && a <= 239) {
             if (!res[selected]) {
                 res[selected] = (char*)calloc(2, sizeof(char));
                 if (res[selected])

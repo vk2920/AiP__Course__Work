@@ -24,13 +24,12 @@ typedef struct student {
 
 typedef struct list_item {
     student data;
-    list_item* prev;
-    list_item* next;
+    struct list_item* prev;
+    struct list_item* next;
 } list_item;
 
 typedef struct list_header {
     list_item* first;
-    list_item* last;
     uint len;
 } list_header;
 
@@ -40,8 +39,8 @@ typedef struct list_header {
 /// <returns>Указатель на заголовок созданного списка</returns>
 list_header* create_empty_list() {
     list_header* res = (list_header*)calloc(1, sizeof(list_header));
+    if (!res) return NULL;
     res->first = NULL;
-    res->last = NULL;
     res->len = 0;
     return res;
 }
@@ -53,11 +52,12 @@ list_header* create_empty_list() {
 void delete_list(list_header* _lh) {
     if (!_lh) return;
     list_item* first = _lh->first;
-    while (first) {
-        list_item* second = first->next;
+    for (int _i = 0; _i < _lh->len;) {
+        if (!(_lh->first)) break;
+        list_item* first = _lh->first;
+        _lh->first = first->next;
         free(first);
-        first = second;
-        first->prev = NULL;
+        _lh->len--;
     }
     free(_lh);
 }
@@ -65,7 +65,19 @@ void delete_list(list_header* _lh) {
 int add_new_item_to_list(list_header* _lh, student _stud) {
     if (!_lh) return 0;
     list_item* first = _lh->first;
-    while (first) first = first->next;
+    if (!first) {
+        _lh->first = (list_item*)calloc(1, sizeof(list_item));
+        if (!(_lh->first)) {
+            _lh->first = NULL;
+            return 0;
+        }
+        _lh->first->data = _stud;
+        _lh->first->prev = NULL;
+        _lh->first->next = NULL;
+        _lh->len = 1;
+        return 1;
+    }
+    while (first->next) first = first->next;
     first->next = (list_item*)calloc(1, sizeof(list_item));
     if (!(first->next)) {
         first->next = NULL;
@@ -74,7 +86,7 @@ int add_new_item_to_list(list_header* _lh, student _stud) {
     first->next->data = _stud;
     first->next->prev = first;
     first->next->next = NULL;
-    _lh->last = first->next;
+    _lh->len++;
     return 1;
 }
 
@@ -83,36 +95,41 @@ student create_student_from_data(char group[7], char surname[16], ushort birth_y
     return res;
 }
 
+//
+
 int main() {
     SetConsoleOutputCP(1251);
     const char* menu[menu_items_count] = {
-        "Создать очередь",
-        "Копировать очередь",
-        "Добавить элемент в первую очередь",
-        "Добавить элемент во вторую очередь",
-        "Взять элемент из первой очереди",
-        "Взять элемент из второй очереди",
-        "Посмотреть элемент из первой очереди",
-        "Посмотреть элемент из второй очереди",
-        "Проверить первую очередь на одинаковые заряды",
-        "Проверить вторую очередь на одинаковые заряды",
-        "Просмотреть поля первого класса",
-        "Просмотреть поля второго класса",
-        "Изменить поле первого класса",
-        "Изменить поле второго класса",
-        "Очистить первую очередь",
-        "Очистить вторую очередь",
-        "Удалить первый класс",
-        "Удалить второй класс",
+        "Создать пустой список",
+        "Загрузить список из файла",
+        "Выгрузить список в файл",
+        "Показать список",
         "Выйти из программы"
     };
-    list_header* header = NULL;
-    for (uint _i = 0; _i < 4294967295; _i++) {
-        header = create_empty_list();
-        for (uint _j = 0; _j < rand()%999 + 1; _j++)
-            add_new_item_to_list(header, create_student_from_data("IS21-3", "Kontarev VadimV", rand()%65535, rand()%2, rand()%65535, rand()%65535));
 
-        delete_list(header);
+    const char* headers[6] = {
+        "Шифр группы (6)",
+        "Фамилия студента (15)",
+        "Год рождения студента",
+        "Пол студента",
+        "Пропущенные часы",
+        "Оправданные часы"
+    };
+    // test_input();
+    _getch();
+    enter_data(headers, 6, NULL);
+    list_header* list = NULL;
+    /*
+    for (uint _i = 0; _i < 4294967295; _i++) {
+        list = create_empty_list();
+        uint c = rand() % 999 + 1;
+        printf("Creating list with %d elements\n", c);
+        for (uint _j = 0; _j < c; _j++)
+            add_new_item_to_list(list, create_student_from_data("IS21-3", "Kontarev VadimV", rand()%65535, rand()%2, rand()%65535, rand()%65535));
+
+        delete_list(list);
     }
+    */
+
     return 0;
 }
